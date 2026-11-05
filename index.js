@@ -1,3 +1,14 @@
+const { Client, GatewayIntentBits, PermissionsBitField } = require('discord.js');
+const express = require('express');
+
+// --- ВЕБ-СЕРВЕР ДЛЯ RENDER (чтобы не засыпал) ---
+const app = express();
+app.get('/', (req, res) => res.send('HudenBot работает! 🛡️'));
+app.listen(process.env.PORT || 3000, () => {
+    console.log('Веб-сервер запущен');
+});
+
+// --- НАСТРОЙКИ БОТА ---
 const client = new Client({ 
     intents: [
         GatewayIntentBits.Guilds, 
@@ -19,14 +30,14 @@ client.on('messageCreate', async (message) => {
     const args = message.content.slice(1).trim().split(/ +/);
     const command = args.shift().toLowerCase();
 
-    // --- ПРОВЕРКА ПРАВ (только для серверов) ---
+    // --- БЕЗОПАСНАЯ ПРОВЕРКА ПРАВ ---
     if (message.guild) {
-        // Если сообщение на сервере, проверяем права
+        // Если на сервере — проверяем права администратора
         if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             return message.reply('У тебя нет прав для этой команды! ⛔');
         }
     } else {
-        // Если сообщение в ЛС (без сервера), разрешаем только "привет"
+        // Если в личке — разрешаем только "привет" и выходим из функции
         if (command === 'привет') {
             return message.reply('Привет! Я HudenBot. 🛡️ В личке я просто здороваюсь, а на серверах умею кикать и банить!');
         } else {
